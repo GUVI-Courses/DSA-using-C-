@@ -1,111 +1,49 @@
 #include <iostream>
+#include <vector>
+#include <climits>
 using namespace std;
 
-void displayArray(int arr[], int size) {
-    // Function to display the elements of the array
-    cout << "Array elements: ";
-    for (int i = 0; i < size; i++) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
-}
+const int INF = INT_MAX;
 
-void insertElement(int arr[], int& size, int capacity, int element, int position) {
-    // Function to insert an element at a specific position
-    if (size >= capacity) {
-        cout << "Array is full. Cannot insert element." << endl;
-        return;
+// Function to find the minimum cost of the Traveling Salesperson Problem
+int tsp(vector<vector<int>>& graph, int start, vector<bool>& visited, int current, int n, int count, int cost, int& minCost) {
+    if (count == n && graph[current][start] > 0) {
+        minCost = min(minCost, cost + graph[current][start]);
+        return minCost;
     }
-    if (position < 0 || position > size) {
-        cout << "Invalid position!" << endl;
-        return;
-    }
-    for (int i = size; i > position; i--) {
-        arr[i] = arr[i - 1];
-    }
-    arr[position] = element;
-    size++;
-    cout << "Element inserted successfully." << endl;
-}
 
-void deleteElement(int arr[], int& size, int position) {
-    // Function to delete an element from a specific position
-    if (position < 0 || position >= size) {
-        cout << "Invalid position!" << endl;
-        return;
-    }
-    for (int i = position; i < size - 1; i++) {
-        arr[i] = arr[i + 1];
-    }
-    size--;
-    cout << "Element deleted successfully." << endl;
-}
-
-int searchElement(int arr[], int size, int element) {
-    // Function to search for an element in the array
-    for (int i = 0; i < size; i++) {
-        if (arr[i] == element) {
-            return i; // Return the index of the element
+    for (int i = 0; i < n; i++) {
+        if (!visited[i] && graph[current][i] > 0) {
+            visited[i] = true;
+            tsp(graph, start, visited, i, n, count + 1, cost + graph[current][i], minCost);
+            visited[i] = false;
         }
     }
-    return -1; // Return -1 if the element is not found
+
+    return minCost;
 }
 
 int main() {
-    const int CAPACITY = 10; // Maximum capacity of the array
-    int arr[CAPACITY] = {1, 2, 3, 4, 5}; // Initialize the array
-    int size = 5; // Current size of the array
+    int n;
+    cout << "Enter the number of cities: ";
+    cin >> n;
 
-    int choice;
-    do {
-        cout << "\n--- Array Operations ---" << endl;
-        cout << "1. Display Array" << endl;
-        cout << "2. Insert Element" << endl;
-        cout << "3. Delete Element" << endl;
-        cout << "4. Search Element" << endl;
-        cout << "5. Exit" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
+    vector<vector<int>> graph(n, vector<int>(n));
 
-        switch (choice) {
-            case 1:
-                displayArray(arr, size);
-                break;
-            case 2: {
-                int element, position;
-                cout << "Enter the element to insert: ";
-                cin >> element;
-                cout << "Enter the position (0-based index): ";
-                cin >> position;
-                insertElement(arr, size, CAPACITY, element, position);
-                break;
-            }
-            case 3: {
-                int position;
-                cout << "Enter the position of the element to delete (0-based index): ";
-                cin >> position;
-                deleteElement(arr, size, position);
-                break;
-            }
-            case 4: {
-                int element;
-                cout << "Enter the element to search: ";
-                cin >> element;
-                int index = searchElement(arr, size, element);
-                if (index != -1) {
-                    cout << "Element found at index: " << index << endl;
-                } else {
-                    cout << "Element not found in the array." << endl;
-                }
-                break;
-            }
-            case 5:
-                cout << "Exiting program..." << endl;
-                break;
-            default:
-                cout << "Invalid choice! Please try again." << endl;
+    cout << "Enter the cost matrix (use 0 if no path exists):\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> graph[i][j];
         }
-    } while (choice != 5);
+    }
+
+    vector<bool> visited(n, false);
+    visited[0] = true; // Starting from the first city
+
+    int minCost = INF;
+    tsp(graph, 0, visited, 0, n, 1, 0, minCost);
+
+    cout << "The minimum cost of the Traveling Salesperson Problem is: " << minCost << endl;
 
     return 0;
 }
